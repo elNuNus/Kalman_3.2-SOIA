@@ -1,44 +1,43 @@
 """ Kalman 3.2
 Ex 1.10 - 3D robot graphics
 p
-@Author: Agnus Oscar"""
+@Authors: Agnus Oscar, Iamurri Pierre"""
 
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.linalg import expm
 
 
-state_vector = np.array([0, # px
-                         0, # py
-                         5, # pz
-                         0, # v
-                         0, # phi
-                         0, # theta
-                         0]) # psi
+state_vector = np.array([0,   # px
+                         0,   # py
+                         5,   # pz
+                         0,   # v
+                         0,   # phi
+                         0,   # theta
+                         0])  # psi
 
 # Useful variables
-dt = 0.01 # Time step
+dt = 0.01  # Time step
 
 # Observation vector
-u1 = 1 # Linear, tangential acceleration
-u2 = 0 # Angular velocity (roll, Phi)
-u3 = 0 # Angular velocity (yaw, Psi)
+u_1 = 1  # Linear, tangential acceleration
+u_2 = 0  # Angular velocity (roll, phi)
+u_3 = 0  # Angular velocity (yaw, psi)
 
 
 # Initial position of the robot
 AUV0_H = np.array([[0, 0, 10, 0, 0, 10, 0, 0],
-                   [-1, 1, 0, -1, -0.2, 0, 0.2, 1],
+                   [-1, 1, 0, -1, -.2, 0, .2, 1],
                    [0, 0, 0, 0, 1, 0, 1, 0],
                    [1, 1, 1, 1, 1, 1, 1, 1]])
 
-
-
 def transformation(X):
     """Computes the homogeneous matrix of the robot, after a given transformation.
-    X : the state vector of the robot"""
+    :param X: the state vector of the robot
+    :return: the homogeneous matrix of the robot after transformation"""
 
     # Set the position before rotation with the state vector
-    px,py,pz = X[0],X[1],X[2]
+    px, py, pz = X[0], X[1], X[2]
     # Tangential speed
     v = X[3]
     # Euler angles
@@ -72,9 +71,9 @@ def transformation(X):
     return H
 
 
-def X_dot(X, u1, u2, u3):
+def x_dot(x, u1, u2, u3):
     """Computes the derivative of the state vector at a given time"""
-    v, phi, theta, psi = X[3], X[4], X[5], X[6]
+    v, phi, theta, psi = x[3], x[4], x[5], x[6]
     dpx =  v * np.cos(theta) * np.cos(psi)
     dpy =  v * np.cos(theta) * np.sin(psi)
     dpz = -v * np.sin(theta)
@@ -115,13 +114,13 @@ def draw_rotation_vector(X):
     """Draws the rotation vector of the robot"""
 
     # Compute the derivative of the angles
-    dphi   = X_dot(X,u1,u2,u3)[4]
-    dtheta = X_dot(X,u1,u2,u3)[5]
-    dpsi   = X_dot(X,u1,u2,u3)[6]
+    dphi = x_dot(X, u_1, u_2, u_3)[4]
+    dtheta = x_dot(X, u_1, u_2, u_3)[5]
+    dpsi = x_dot(X, u_1, u_2, u_3)[6]
     # Get the angles
-    phi   = X[4]
+    phi = X[4]
     theta = X[5]
-    psi   = X[6]
+    psi = X[6]
 
     # Compute the rotation vector
     omega = np.array([[np.cos(theta)*np.cos(psi), -np.sin(psi), 0],
@@ -158,7 +157,7 @@ if __name__ == "__main__" :
     for t in np.arange(0, 10, dt):
 
         # Compute the next state vector
-        state_vector = state_vector + dt * X_dot(state_vector, u1, u2, u3)
+        state_vector = state_vector + dt * x_dot(state_vector, u_1, u_2, u_3)
 
         # Compute the transformed pattern
         M = transformation(state_vector)
